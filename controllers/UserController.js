@@ -15,8 +15,7 @@ module.exports = class Usercontroller{
     static async newUser(req, res) {
         const {name, password, email, confirmPassword, phone} = req.body
 
-        //Vai validar ou um ou outro
-        const buscaUser = await User.findOne({$or: [{ email }, { phone }],})
+        const buscaUser = await User.findOne({email})
 
         if(!name){
             return res.status(401).json({mensage:'Digite seu nome'})
@@ -39,10 +38,6 @@ module.exports = class Usercontroller{
         if (buscaUser) {
             return res.status(401).json({ message: "E-mail já existe" });
         } 
-        if (buscaUser.phone === phone) {
-            return res.status(401).json({ message: "Telefone já existe" });
-        }
-          
 
         const salt = await bcrypt.genSalt(12)
         const passwordHash = await bcrypt.hash(password, salt);
@@ -119,7 +114,7 @@ try{
     }
     static async updateUser(req, res){
         const id = req.params.id
-        //pegando o id do token por segurança
+        //pegando o id pelo token por segurança
         const token = getToken(req.headers.authorization)
         const user = await getUserByToken(token);
 
